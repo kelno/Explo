@@ -75,7 +75,8 @@ func (c *DownloadClient) StartDownload(tracks *[]*models.Track) {
 
 	for _, d := range c.Downloaders {
 		var g errgroup.Group
-		g.SetLimit(3)
+		// SetLimit(0) would block every track: run at least one
+		g.SetLimit(max(c.Cfg.DownloadConcurrency, 1))
 
 		limiter := rate.NewLimiter(rate.Every(time.Second), c.Cfg.DownloadLimiter)
 
